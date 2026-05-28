@@ -32,7 +32,7 @@ Cost-Xray 在 AnySearch 不可用时会自动回退到内置 WebSearch。
 在 Claude Code 中直接说：
 
 ```
-帮我透视一下 iPhone 17 Pro，¥8999
+帮我分析一下 iPhone 17 Pro，¥8999
 拆解 LV Speedy 30 的成本结构，¥15500
 这瓶 La Mer 面霜 ¥3200，值不值？
 小米 YU7 标准版 ¥253,500，成本多少？
@@ -52,14 +52,7 @@ Cost-Xray 在 AnySearch 不可用时会自动回退到内置 WebSearch。
 - 家居/家具
 - 新能源汽车（通过自定义维度支持）
 
-## 输出示例
-
-![成本拆解条图](examples/dji-mic-mini2-output.md)
-
-三份完整报告示例：
-- 消费电子：[大疆 DJI Mic Mini ¥350](examples/dji-mic-mini2-output.md)
-- 奢侈品：[LV Speedy 30 ¥15,500](#)
-- 新能源汽车：[小米 YU7 ¥253,500](#)
+## 输出形式
 
 报告为单文件自包含 HTML（内联 CSS + base64 图表），可直接在浏览器中打开，也可嵌入文章。
 
