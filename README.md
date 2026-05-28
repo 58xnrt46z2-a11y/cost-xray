@@ -6,9 +6,7 @@
 
 ## 安装
 
-```bash
-# 克隆到 Claude Code 全局 skills 目录
-git clone https://github.com/YOUR_USERNAME/cost-xray.git ~/.claude/skills/cost-xray
+https://github.com/58xnrt46z2-a11y/cost-xray.git
 ```
 
 也可放在任意项目的 `.claude/skills/` 目录下作为项目级 skill。
