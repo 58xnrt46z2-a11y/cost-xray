@@ -1,89 +1,125 @@
-# Cost-Xray (成本透视)
+# 🩻 Cost-Xray（成本透视）
 
-像 X 光一样穿透价格标签，看清每一分钱被谁赚走了。
+*像 X 光一样穿透价格标签，看清每一分钱被谁赚走了。*
 
-输入任意商品/服务的名称和价格，Cost-Xray 自动搜索供应链数据、财报、拆机报告，生成一份 McKinsey 风格的 HTML 分析报告——包含成本全景表、图表（条形图+堆叠条图）、逐项深度解读、竞品对比、以及"值不值"的明确判断。
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Claude%20Code-8B5CF6)](https://claude.ai/code)
+[![Python](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/)
 
-## 安装
+---
 
-https://github.com/58xnrt46z2-a11y/cost-xray.git
+## 这是什么
+
+你花 ¥15,500 买了一只 LV Speedy 30，但它的物料成本只有 ¥628。剩下的钱去哪了？
+
+Cost-Xray 是一个 Claude Code 全局 skill。给它**产品名 + 价格**，它会自动搜索供应链数据、企业财报、拆机报告和行业研报，拆解出 10+ 个成本维度，生成一份 McKinsey 风格的 HTML 报告——**把品牌方不愿意告诉你的定价黑箱，摆到桌面上**。
+
+每份报告包含：
+
+- 📊 **成本全景表**：每个维度的金额、占比、数据来源和可信度
+- 📈 **可视化图表**：横向条图 + 100% 堆叠条图（扁平、无 3D、无渐变）
+- 🔍 **逐项深度解读**：每一分钱给了谁，为什么给这么多
+- 🆚 **竞品对比**：同价位产品横向比较
+- ⚖️ **"值不值"判定**：给明确结论，不模棱两可
+
+<p align="center"><em>报告示例预览（单文件 HTML，浏览器直接打开）</em></p>
+
+---
+
+## 快速开始
+
+### 1. 安装
+
+```bash
+git clone https://github.com/58xnrt46z2-a11y/cost-xray.git ~/.claude/skills/cost-xray
 ```
 
-也可放在任意项目的 `.claude/skills/` 目录下作为项目级 skill。
+### 2. 安装 Python 依赖
 
-## 依赖
-
-- **Python 3.6+**，需安装以下包：
-  ```bash
-  pip install matplotlib fpdf2
-  ```
-- **AnySearch skill**（推荐，用于批量并行搜索 + 全文提取）：
-  ```bash
-  git clone https://github.com/anysearch-ai/anysearch-skill.git ~/.claude/skills/anysearch
-  ```
-  可选：在 AnySearch 目录下配置 `.env` 文件填写 API Key 以提高搜索限额。无 Key 也可匿名使用。
-
-Cost-Xray 在 AnySearch 不可用时会自动回退到内置 WebSearch。
-
-## 用法
-
-在 Claude Code 中直接说：
-
-```
-帮我分析一下 iPhone 17 Pro，¥8999
-拆解 LV Speedy 30 的成本结构，¥15500
-这瓶 La Mer 面霜 ¥3200，值不值？
-小米 YU7 标准版 ¥253,500，成本多少？
+```bash
+pip install matplotlib fpdf2
 ```
 
-触发词包括：`成本拆解` `价格解剖` `钱花在哪了` `值不值` `溢价拆解` `智商税` `拆成本` `透视成本` 等。
+### 3. （推荐）安装 AnySearch
+
+Cost-Xray 优先使用 AnySearch 做批量并行搜索和全文提取。不装也能用，会自动回退到内置搜索。
+
+```bash
+git clone https://github.com/anysearch-ai/anysearch-skill.git ~/.claude/skills/anysearch
+```
+
+> AnySearch 不配 API Key 也能匿名使用，只是速率限制较低。去 [anysearch.com](https://anysearch.com/console/api-keys) 免费注册获取 Key，写入 `~/.claude/skills/anysearch/.env` 即可。
+
+### 4. 开始使用
+
+重启 Claude Code，然后直接说：
+
+```
+帮我透视一下 iPhone 17 Pro，¥8999
+LV Speedy 30 ¥15,500 钱花在哪了
+小米 YU7 标准版 ¥253,500 拆成本
+这瓶面霜 ¥3200 值不值
+```
+
+> **触发词**：`成本拆解` `价格解剖` `钱花在哪了` `值不值` `溢价拆解` `智商税` `拆成本` `透视成本` `为什么这么贵` `成本结构`
+
+---
+
+## 工作流程
+
+```
+你说 "透视 iPhone 17 Pro ¥8999"
+    ↓
+① 输入解析 → 识别品类：消费电子
+    ↓
+② 基线匹配 → 加载消费电子成本区间（BOM 20-35%、渠道 20-35%...）
+    ↓
+③ 并行搜索 → AnySearch 同时搜：拆机报告 + 苹果财报 + 供应链信息
+    ↓
+④ 初步估算 → 硬数据锚定 + 基线填补，生成成本拆解 JSON
+    ↓
+⑤ 深度模式 → 6-8 路平行搜索 + 关键页面全文提取
+    ↓
+⑥ 竞品对比 → 三星/华为旗舰横向对比
+    ↓
+⑦ 生成报告 → 单文件 HTML（内联 CSS + base64 图表）
+    ↓
+⑧ 输出文件 → 浏览器打开即可查看
+```
+
+---
 
 ## 支持的品类
 
-- 消费电子（手机、耳机、电脑等）
-- 奢侈品/时尚（包袋、服装、配饰等）
-- 化妆品/护肤品
-- 餐饮/食品饮料
-- 软件/SaaS
-- 教育/培训服务
-- 医疗美容服务
-- 家居/家具
-- 新能源汽车（通过自定义维度支持）
+所有品类都有内置的行业成本基线数据库，搜索到的硬数据会动态修正基线值。
 
-## 输出形式
+| 品类 | 示例产品 |
+|------|---------|
+| 💻 消费电子 | 手机、耳机、电脑、相机、麦克风 |
+| 👜 奢侈品/时尚 | 包袋、服装、鞋履、配饰 |
+| 💄 化妆品/护肤品 | 面霜、精华、口红、香水 |
+| 🍔 餐饮/食品饮料 | 餐厅菜品、外卖、包装食品 |
+| 💾 软件/SaaS | 订阅服务、App、云服务 |
+| 📚 教育/培训 | 线上课程、培训班、私教 |
+| 💉 医疗美容 | 热玛吉、水光针、牙齿矫正 |
+| 🛋️ 家居/家具 | 沙发、床垫、定制柜 |
+| 🚗 新能源汽车 | 纯电、混动、增程 |
 
-报告为单文件自包含 HTML（内联 CSS + base64 图表），可直接在浏览器中打开，也可嵌入文章。
+---
 
-## 文件结构
+## 数据可信度
 
-```
-cost-xray/
-├── SKILL.md                    # Skill 定义（8 步分析流程）
-├── README.md                   # 本文件
-├── references/
-│   ├── industry-baselines.md   # 8 大品类成本基线数据库
-│   ├── analysis-framework.md   # 分品类深度分析框架
-│   └── report-template.md      # 报告模板
-├── scripts/
-│   ├── cost_calculator.py      # 成本估算计算引擎
-│   ├── generate_charts.py      # McKinsey 风格图表生成器
-│   ├── generate_html_report.py # HTML 报告生成器
-│   ├── generate_md_report.py   # Markdown 报告生成器（备用）
-│   └── md_to_pdf.py            # Markdown→PDF 转换器（备用）
-└── examples/
-    └── dji-mic-mini2-output.md # 验收用例
-```
+每条成本数据都标注了来源和可信度，宁写"暂无公开数据"也不编造数字。
 
-## 数据来源与可信度
+| 星级 | 含义 | 典型来源 |
+|------|------|---------|
+| ●●●●● | 官方硬数据 | 上市公司财报、品牌官方成本披露 |
+| ●●●● | 可信第三方 | iFixit 拆机 BOM 清单、知名券商研报 |
+| ●●● | 行业经验区间 | 行业白皮书、从业者访谈 |
+| ●● | 基线估算 | 品类通用成本结构 |
 
-Cost-Xray 严格标注每条数据的来源和可信度（●1-5）：
 
-- ●●●●● = 官方财报/拆机报告等硬数据
-- ●●●●  = 可信第三方数据（行业研报、权威媒体分析）
-- ●●●   = 行业通用区间
-- ●●    = 仅行业经验估算
-- ●     = 纯推测
 
 ## 许可
 
-MIT License
+MIT License — 随便用，提个 Issue 或 PR 更好。
