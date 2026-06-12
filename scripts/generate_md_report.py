@@ -279,23 +279,32 @@ def generate_report(cost_data: dict, interpretations: Optional[dict] = None) -> 
 > **免责声明**：以上分析基于公开信息和行业经验估算，非品牌官方数据。实际成本结构可能因供应链变化、采购量、定价策略等因素有显著差异。本报告仅供决策参考。
 
 ---
-*报告由 Cost-Anatomist 生成 · {today}*
+*报告由 Cost-Xray 生成 · {today}*
 """
 
     return report
 
 
 def main():
-    """从 stdin 读取 JSON，输出 Markdown 报告"""
+    """从 stdin 或文件读取 JSON，输出 Markdown 报告"""
     try:
-        raw = sys.stdin.read()
-        if not raw.strip():
-            print("错误：无输入数据", file=sys.stderr)
-            sys.exit(1)
+        if len(sys.argv) >= 2:
+            with open(sys.argv[1], "r", encoding="utf-8-sig") as f:
+                data = json.load(f)
+        else:
+            raw = sys.stdin.read()
+            if not raw.strip():
+                print("用法: python generate_md_report.py <cost_data.json> [output.md]", file=sys.stderr)
+                sys.exit(1)
+            data = json.loads(raw)
 
-        data = json.loads(raw)
         report = generate_report(data)
-        print(report)
+        if len(sys.argv) >= 3:
+            with open(sys.argv[2], "w", encoding="utf-8") as f:
+                f.write(report)
+            print(f"Markdown 报告已生成: {sys.argv[2]}")
+        else:
+            print(report)
 
     except json.JSONDecodeError as e:
         print(f"错误：JSON 解析失败 - {e}", file=sys.stderr)
