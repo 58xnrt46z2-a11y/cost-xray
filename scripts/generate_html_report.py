@@ -471,7 +471,7 @@ def build_html(data, interpretations=None, competitor_rows=None, value_judgment=
     html += f"""
 <footer class="footnotes">
     <p><strong>品类基线</strong>：{_esc(category)}，基于 {_esc(brand_note or '行业公开数据')}</p>
-    <p><strong>生成日期</strong>：{today} &middot; Cost-Anatomist</p>
+    <p><strong>生成日期</strong>：{today} &middot; Cost-Xray</p>
     <p class="disclaimer">免责声明：以上分析基于公开信息和行业经验估算，非品牌官方数据。实际成本结构可能因供应链变化、采购量、定价策略等因素有显著差异。本报告仅供决策参考，不构成投资或购买建议。</p>
 </footer>
 
@@ -521,7 +521,7 @@ def main():
         html = build_html(data)
         print(html)
     else:
-        with open(sys.argv[1], "r", encoding="utf-8") as f:
+        with open(sys.argv[1], "r", encoding="utf-8-sig") as f:
             data = json.load(f)
         html = build_html(data)
         out_path = sys.argv[2] if len(sys.argv) > 2 else sys.argv[1].replace(".json", ".html")

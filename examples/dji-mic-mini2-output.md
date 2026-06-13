@@ -1,6 +1,6 @@
 # DJI Mic Mini 2 无线降噪麦克风（¥350）—— 预期分析输出
 
-这是 cost-anatomist skill 的第一个验收案例，也是测试时的预期效果参考。
+这是 Cost-Xray skill 的第一个验收案例，也是测试时的预期效果参考。
 
 ## 测试输入
 
