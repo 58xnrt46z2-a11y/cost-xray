@@ -61,7 +61,13 @@ If `input.json` contains extra metadata, keep it for evidence and report writing
 
 ## Evidence Ledger
 
-Create `evidence/evidence-ledger.md` alongside `cost_data.json`.
+Generate the initial ledger alongside `cost_data.json`:
+
+```bash
+python scripts/evidence_ledger.py data/cost_data.json evidence/evidence-ledger.md
+```
+
+Then enrich the generated rows with the actual source URL/title, evidence tier, usage, and caveat. The generator provides a starting structure; it does not replace source verification.
 
 Required columns:
 

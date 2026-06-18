@@ -111,12 +111,19 @@ def render_ledger_md(rows, product_name, price, overall_confidence):
             f"| {row['usage']} |\n"
         )
 
+    if not rows:
+        md += "| 暂无成本拆解数据 | - | - | - | - | - | - |\n"
+
     # 统计
     official = sum(1 for r in rows if r["confidence"] >= 5)
     third_party = sum(1 for r in rows if r["confidence"] == 4)
     industry = sum(1 for r in rows if r["confidence"] == 3)
     baseline = sum(1 for r in rows if r["confidence"] == 2)
     guess = sum(1 for r in rows if r["confidence"] <= 1)
+    total = len(rows)
+
+    def share(count):
+        return count / total * 100 if total else 0
 
     md += f"""
 ---
@@ -125,13 +132,13 @@ def render_ledger_md(rows, product_name, price, overall_confidence):
 
 | 数据等级 | 数量 | 占比 |
 |---------|------|------|
-| 官方硬数据 (●5) | {official} | {official/len(rows)*100:.0f}% |
-| 权威第三方 (●4) | {third_party} | {third_party/len(rows)*100:.0f}% |
-| 行业研报 (●3) | {industry} | {industry/len(rows)*100:.0f}% |
-| 基线估算 (●2) | {baseline} | {baseline/len(rows)*100:.0f}% |
-| 推测/假设 (●1) | {guess} | {guess/len(rows)*100:.0f}% |
+| 官方硬数据 (●5) | {official} | {share(official):.0f}% |
+| 权威第三方 (●4) | {third_party} | {share(third_party):.0f}% |
+| 行业研报 (●3) | {industry} | {share(industry):.0f}% |
+| 基线估算 (●2) | {baseline} | {share(baseline):.0f}% |
+| 推测/假设 (●1) | {guess} | {share(guess):.0f}% |
 
-> **判定**：{_coverage_verdict(official, third_party, len(rows))}
+> **判定**：{_coverage_verdict(official, third_party, total)}
 
 ---
 
@@ -141,6 +148,9 @@ def render_ledger_md(rows, product_name, price, overall_confidence):
 
 
 def _coverage_verdict(official, third_party, total):
+    if total == 0:
+        return "暂无可评估的数据，请先生成成本拆解。"
+
     hard_ratio = (official + third_party) / total
     if hard_ratio >= 0.7:
         return "🟢 证据覆盖良好——大部分数据有硬数据或权威第三方支撑，分析结论可靠。"
@@ -156,7 +166,7 @@ def main():
         print("用法: python evidence_ledger.py <cost_data.json> [output.md]", file=sys.stderr)
         sys.exit(1)
 
-    with open(sys.argv[1], "r", encoding="utf-8") as f:
+    with open(sys.argv[1], "r", encoding="utf-8-sig") as f:
         data = json.load(f)
 
     product = data.get("product", {})

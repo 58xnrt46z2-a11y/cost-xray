@@ -14,7 +14,7 @@ from pathlib import Path
 
 def _read_text_flexible(path: Path) -> str:
     raw = path.read_bytes()
-    for encoding in ("utf-8", "utf-8-sig", "utf-16", "gbk"):
+    for encoding in ("utf-8-sig", "utf-8", "utf-16", "gbk"):
         try:
             return raw.decode(encoding)
         except UnicodeDecodeError:
@@ -160,7 +160,7 @@ def validate_ledger(path: Path | None, breakdown: list) -> tuple[list, list]:
     if not has_table:
         warns.append("Evidence ledger does not look like a Markdown table.")
 
-    tier_hits = re.findall(r"\b[SABCD]\b|Tier\s*[SABCD]|[⭐★]{1,5}", text)
+    tier_hits = re.findall(r"\b[SABCD]\b|Tier\s*[SABCD]|[⭐★●]{1,5}", text)
     if not tier_hits:
         warns.append("Evidence ledger has no visible tier/confidence labels.")
 

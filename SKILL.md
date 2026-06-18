@@ -114,9 +114,9 @@ Process:
 1. Search in parallel across teardown/BOM, company financials, channel/retail economics, competitors, and category baselines.
 2. Build `data/input.json` with price, category, anchors, and source notes.
 3. Run `scripts/cost_calculator.py` to create `data/cost_data.json`.
-4. Draft `evidence/evidence-ledger.md` using `references/evidence-rules.md`.
+4. Run `scripts/evidence_ledger.py data/cost_data.json evidence/evidence-ledger.md`, then enrich it with source URLs, evidence tiers, and caveats from `references/evidence-rules.md`.
 5. Generate report with `scripts/generate_md_report.py` and/or `scripts/generate_html_report.py`.
-6. Run `scripts/validate_cost_report.py data/cost_data.json evidence/evidence-ledger.md`.
+6. Run `scripts/validate_cost_report.py data/cost_data.json evidence/evidence-ledger.md output/validation.json`.
 7. Fix FAIL items before delivery. WARN items may remain only if disclosed.
 
 ### 5. Public-Facing Copy
@@ -149,6 +149,7 @@ For deep reports, include:
 - `scripts/generate_html_report.py` — `cost_data.json` to HTML report.
 - `scripts/generate_md_report.py` — `cost_data.json` to Markdown report.
 - `scripts/md_to_pdf.py` — optional Markdown to PDF conversion.
+- `scripts/evidence_ledger.py` — generates the initial evidence ledger from `cost_data.json`.
 - `scripts/validate_cost_report.py` — checks report data integrity and evidence coverage.
 
 ## Non-Negotiables

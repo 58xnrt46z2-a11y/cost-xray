@@ -183,6 +183,7 @@ scripts/cost_calculator.py       成本估算辅助脚本
 scripts/generate_html_report.py  HTML 报告生成器
 scripts/generate_md_report.py    Markdown 报告生成器
 scripts/md_to_pdf.py             PDF 转换辅助脚本
+scripts/evidence_ledger.py       证据账本生成器
 scripts/validate_cost_report.py  数据与证据覆盖验证器
 ```
 
@@ -198,6 +199,13 @@ python scripts/generate_html_report.py cost_data.json output.html
 
 ```bash
 python scripts/generate_md_report.py cost_data.json output.md
+```
+
+生成证据账本并运行验证：
+
+```bash
+python scripts/evidence_ledger.py cost_data.json evidence-ledger.md
+python scripts/validate_cost_report.py cost_data.json evidence-ledger.md validation.json
 ```
 
 ## 示例
