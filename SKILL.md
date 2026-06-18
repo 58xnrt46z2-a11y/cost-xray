@@ -1,182 +1,160 @@
 ---
 name: cost-xray
-description: 成本透视——穿透价格标签，看清每一分钱被谁赚走。输入产品+价格即可拆解成本结构。触发场景：用户问"值不值""为什么这么贵""成本拆解""价格解剖""钱花在哪""智商税""拆成本""价格构成""成本结构"，或提供产品名+价格要求分析。对消费电子、化妆品、奢侈品、餐饮等品类效果最佳。
-argument-hint: [产品名称+购买价格]
+description: Use when the user asks whether a product or service is worth its price, why it is expensive, where the money goes, or requests cost breakdown, pricing anatomy, margin analysis, brand premium, BOM, channel markup, 智商税, or a Xiaohongshu/公众号 cost-analysis article.
 ---
 
-# Cost-Xray（成本透视）
+# Cost-Xray
 
-像X光一样穿透价格标签，看清每一分钱的去向。拆解任何商品或服务的真实成本结构。
+Turn a product or service price into a transparent cost story: who gets paid, which costs are hard data, which are estimates, and whether the price is reasonable.
 
-## 核心原则
+## What To Produce
 
-- **硬数据优先**：每条数字必须有来源锚点（财报、拆机报告、行业研报、供应链数据）。找不到的明确标注"暂无公开数据，以行业经验估算"
-- **尖锐但不编造**：直指溢价核心，宁写"这部分钱品牌方不会告诉你"也不瞎填数字
-- **透明可信度**：每项成本标注 ⭐1-5（⭐⭐⭐⭐⭐ = 官方财报/拆机报告；⭐ = 行业经验猜测）
-- **两档深度**：支持快速模式（秒出结论）和深度模式（完整 McKinsey 报告）
+Choose the deliverable by user intent:
 
-## 搜索引擎
+- **Quick judgment**: a short answer in chat when the user wants a fast "值不值".
+- **Deep report**: a project folder with structured data, evidence notes, Markdown/HTML report, charts when possible, and validation output.
+- **Self-media copy**: a Xiaohongshu/公众号 version after the cost report is stable.
+- **Follow-up assets**: social-card cover, deck, or PDF only when the user asks or the workflow has already produced the base report.
 
-默认使用内置 **WebSearch** 和 **WebFetch**。
+Do not use this skill to invent exact private costs, claim insider data without evidence, attack a brand, provide investment advice, or present estimates as official facts.
 
-如果安装了 [AnySearch](https://skills.sh/anysearch) 插件，优先用其 `batch_search` 并行搜索提速。AnySearch 不可用时自动回退到内置工具，无需任何配置。
+## Core Principles
 
----
+- **Evidence first**: every important number needs a source, evidence tier, or explicit "industry baseline estimate" label.
+- **Sharp but honest**: keep the voice direct, but never manufacture precision.
+- **Separate money buckets**: do not merge BOM, gross margin, channel markup, tax, brand premium, and net profit.
+- **Confidence visible**: attach 1-5 confidence to each cost line and explain low-confidence items.
+- **Decision useful**: end with a clear verdict, alternatives, and caveats.
 
-## 工作流程
+## Search Tools
 
-### 第 1 步：输入解析
+Use the available web search and page extraction tools. If AnySearch is installed, prefer its batch search and URL extraction for parallel research. Fall back to the environment's built-in browsing tools without blocking the workflow.
 
-从用户消息提取：
-- 产品全称、品牌、型号
-- 购买价格（必填，若未提供则追问）
-- 品类（自动识别）
-- 用户的具体疑问（如"为什么这么贵""是不是智商税"）
+## Required References
 
-### 第 2 步：品类识别
+Read only what the task needs:
 
-识别品类，从 `references/industry-baselines.md` 加载对应成本基线区间。跨品类产品（如"智能手表"既是电子又是时尚）合并两个基线。
+- `references/production-workflow.md` for folder shape, file names, and deep-report execution.
+- `references/evidence-rules.md` before using numbers from search, reports, teardown posts, or industry baselines.
+- `references/industry-baselines.md` to select category cost ranges.
+- `references/category-playbook.md` when the product belongs to a specific category or service type.
+- `references/analysis-framework.md` for cost dimensions and category-specific search angles.
+- `references/report-template.md` for the deep report structure.
+- `references/social_media_template.md` when creating Xiaohongshu/公众号 text.
+- `references/qa-checklist.md` before delivering a deep report or public-facing copy.
 
-### 第 3 步：模式选择 ⚡
+## Workflow
 
-用 **AskUserQuestion** 让用户选择分析深度：
+### 1. Intake
 
-```
-分析 [产品名] (¥[价格])，你想要哪种深度？
+Extract:
 
-A) 快速判断 — 30秒告诉你值不值，成本大头在哪（适合快速决策）
-B) 深度拆解 — 完整 McKinsey 风格报告，含图表、竞品对比、替代方案（适合写文章/做研究）
-```
+- Product/service name, brand, model, country/region if relevant.
+- Retail price and currency. If missing, ask once before calculating.
+- User goal: fast purchase decision, deep research, self-media article, or comparison.
+- Category and purchase channel if obvious.
 
-- **快速模式** → 跳到第 4 步快速版
-- **深度模式** → 进入标准流程第 5 步
+If the user asks about current prices, recent financials, current product specs, or new releases, verify with browsing and cite sources.
 
-### 第 4 步：快速模式（精简版）
+### 2. Choose Mode
 
-只搜索 1-2 个方向，聚焦核心问题：
+Use a reasonable default instead of over-asking:
 
-```
-WebSearch "[产品名] 成本 毛利率 BOM 拆机"
-WebSearch "[产品名] 值不值 性价比 评价"
-```
+- If the user only asks "值不值/为什么贵": run quick judgment.
+- If the user asks "深度/完整/报告/文章/拆开讲": run deep report.
+- If the user gives a product and price but no mode: start with quick judgment, then offer deep report as a follow-up.
 
-输出结构：
-```
-## ⚡ 快速成本判断：[产品名] ¥[价格]
+### 3. Quick Judgment
 
-**成本大头**：[最大的 3 项成本，各一句话]
-**品牌方赚多少**：[毛利率估算 + 来源]
-**值不值？** [明确判断 + 一句话理由]
-**更划算的替代**：[1-2 个替代方案]
+Search only the highest-yield evidence:
 
-⚠ 快速模式基于有限搜索，深度分析请选 B 模式。
-```
-
-快速模式到此结束。不生成 HTML，不跑 Python 脚本。
-
-### 第 5 步：深度搜索（标准流程）
-
-并行搜索 3-5 路：
-
-```
-- "[产品名] 拆机 BOM 成本 物料清单"
-- "[品牌/行业] 毛利率 净利率 财报 2025 2026"
-- "[产品名] 代工厂 供应商 渠道利润"
-- "[产品名] vs [竞品] 对比 性价比"
+```text
+"[product] BOM teardown cost"
+"[brand/company] gross margin annual report"
+"[product/category] channel markup cost structure"
 ```
 
-对高价值链接用 WebFetch 提取全文。
+Output:
 
-### 第 6 步：深度搜索补充（条件触发）
+```text
+## Quick Cost Judgment: [product] [price]
 
-以下条件触发第二轮搜索（追加 3-5 路）：
-- 首轮硬数据点 < 3 个
-- 产品单价 > 1000 元且首轮可信度偏低
-- 用户明确要求"深度分析"
-
-补充搜索方向：供应链细节、历史价格走势、消费者口碑、行业研报、原材料价格。
-
-### 第 7 步：竞品对比
-
-搜索 2-3 款竞品成本信息，构建对比表。竞品选择优先级：同价位直接竞品 > 同品牌上下级产品 > 品类标杆。
-
-### 第 8 步：生成 HTML 报告
-
-调用 `scripts/generate_html_report.py`，输入 JSON 成本数据，生成 McKinsey 极简商务风 HTML（白底、低饱和蓝灰+橙色高亮、base64 嵌入图表、扁平无 3D）。
-
-报告结构（参考 `references/report-template.md`）：
-1. 标题 + 一句话暴击
-2. 成本全景表（金额、占比、可信度）
-3. 可视化图表
-4. 逐项深度解读
-5. 利润流向图
-6. 竞品对比表
-7. "值不值？"判定 + 替代方案
-8. 脚注：品类基线说明 + 免责声明 + 来源列表
-
-```bash
-python scripts/generate_html_report.py <cost_data.json> <output.html>
+Cost center: top 3 money buckets.
+Brand/company keeps: gross/net margin estimate with source.
+Verdict: 值回票价 / 合理 / 偏贵 / 高溢价.
+Better buys: 1-2 alternatives.
+Confidence: high / medium / low and why.
 ```
 
-### 第 9 步：自媒体文本版 🆕
+Do not generate files for quick mode unless the user asks.
 
-HTML 报告生成后，自动生成一份**适合小红书/公众号发布的文本版**。
+### 4. Deep Report
 
-格式要求：
-- **标题**：反常识或数据冲击型（如"你花 350 买的 DJI Mic Mini，物料成本可能不到 80"）
-- **开头钩子**：30 字内抓住注意力
-- **核心数据**：3-5 个最有冲击力的数字
-- **金句**：至少 2 句加粗金句
-- **结尾互动**：引导评论讨论
-- **免责声明**：一句话
-- 全文字数：500-800 字
+Follow `references/production-workflow.md`.
 
-保存为 `[产品名]_社交媒体文案.md`。
+Default folder:
 
-### 第 10 步：下一步建议 🆕
-
-用 **AskUserQuestion** 提出后续操作：
-
-```
-[产品名] 成本拆解完成。接下来？
-
-A) 把自媒体文案优化润色（调用 edit-article）
-B) 生成小红书图文帖子（调用 image-post-creator）
-C) 做成 PPT 演示（调用 ppt-creator）
-D) 不用了，报告够了
+```text
+cost-xray-<product-slug>/
+  data/
+    input.json
+    cost_data.json
+  evidence/
+    evidence-ledger.md
+    sources.md
+  output/
+    report.md
+    report.html
+    social-copy.md
+    validation.json
 ```
 
-根据用户选择，调用对应 skill 或结束。
+Process:
 
----
+1. Search in parallel across teardown/BOM, company financials, channel/retail economics, competitors, and category baselines.
+2. Build `data/input.json` with price, category, anchors, and source notes.
+3. Run `scripts/cost_calculator.py` to create `data/cost_data.json`.
+4. Draft `evidence/evidence-ledger.md` using `references/evidence-rules.md`.
+5. Generate report with `scripts/generate_md_report.py` and/or `scripts/generate_html_report.py`.
+6. Run `scripts/validate_cost_report.py data/cost_data.json evidence/evidence-ledger.md`.
+7. Fix FAIL items before delivery. WARN items may remain only if disclosed.
 
-## 语言风格规范
+### 5. Public-Facing Copy
 
-- **开场一句扎心**："你花了 ¥X 买这个东西，但它的物料成本可能连 ¥Y 都不到。剩下的钱去哪了？"
-- **每项成本配通俗解读**：不只列数字，讲清楚"谁赚了这笔钱、为什么赚这么多"
-- **高溢价项犀利点出**："品牌溢价 ¥X，占总价 X%。这不是研发，不是物料，就是这三个字值这么多钱。品牌确实有价值——但不代表溢价全合理。"
-- **数据空缺诚实但不软弱**：明确说"暂无公开数据"，给出基于行业经验的合理区间
-- **"值不值"有态度**：四档判定——值回票价 / 合理 / 偏贵 / 纯智商税。不模糊，不和稀泥
-- **不堆砌术语**：用"渠道加价"而非"分销层级溢价"，用"代工厂利润"而非"OEM 毛利留存"
+Only create Xiaohongshu/公众号 copy after the cost structure is internally consistent.
 
-## 错误降级方案 🆕
+Use `references/social_media_template.md`, then check:
 
-| 场景 | 降级策略 |
-|------|----------|
-| Python 脚本不可用 | 跳过 HTML 生成，直接在对话中输出 Markdown 格式报告 |
-| 图表生成失败 | 用文本表格替代，标注"图表生成失败，以下为文本版" |
-| 搜索结果极少（< 2 条有效数据） | 以行业基线为主，明确告知用户"以下为行业经验估算，非该产品精确数据" |
-| 用户未提供价格 | 追问后再继续，不要自己猜价格 |
+- No fake exactness.
+- No defamatory wording.
+- No investment advice.
+- No absolute consumer claims like "必买/别买/唯一选择".
+- Include one short disclaimer: "基于公开信息和行业估算，不代表品牌官方成本。"
 
-## 参考资料
+### 6. Delivery
 
-- `references/industry-baselines.md` — 行业成本基线数据库
-- `references/analysis-framework.md` — 品类深度分析框架和特殊维度
-- `references/report-template.md` — 完整报告模板
+For deep reports, include:
 
-## 脚本
+- Output folder path.
+- The core verdict.
+- Confidence level and weakest data point.
+- Generated files.
+- Validation summary.
+- Any unresolved caveats.
 
-- `scripts/cost_calculator.py` — 成本估算引擎
-- `scripts/generate_charts.py` — McKinsey 风图表（base64 嵌入）
-- `scripts/generate_html_report.py` — 主报告生成器（JSON → HTML）
-- `scripts/generate_md_report.py` — Markdown 报告生成器（降级用）
+## Scripts
+
+- `scripts/cost_calculator.py` — category baseline + evidence anchor calculation.
+- `scripts/generate_charts.py` — chart generation for HTML reports.
+- `scripts/generate_html_report.py` — `cost_data.json` to HTML report.
+- `scripts/generate_md_report.py` — `cost_data.json` to Markdown report.
+- `scripts/md_to_pdf.py` — optional Markdown to PDF conversion.
+- `scripts/validate_cost_report.py` — checks report data integrity and evidence coverage.
+
+## Non-Negotiables
+
+- Do not guess price when the user omitted it.
+- Do not call a number "real cost" unless the source is official or a teardown/BOM with clear methodology.
+- Do not use "智商税" as the verdict unless the evidence shows function/quality/alternatives are severely mismatched with price.
+- Do not let cost percentages silently exceed or fall far below 100% without a deviation note.
+- Do not deliver public copy from an unvalidated deep report.

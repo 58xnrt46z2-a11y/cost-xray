@@ -315,7 +315,16 @@ def _deviation_note(total_pct: float) -> str:
 def main():
     """从 stdin 读取 JSON 输入，输出 JSON 结果"""
     try:
-        raw = sys.stdin.read()
+        raw_bytes = sys.stdin.buffer.read()
+        raw = None
+        for encoding in ("utf-8", "utf-8-sig", "utf-16", "gbk"):
+            try:
+                raw = raw_bytes.decode(encoding)
+                break
+            except UnicodeDecodeError:
+                continue
+        if raw is None:
+            raw = raw_bytes.decode("utf-8", errors="replace")
         if not raw.strip():
             print(json.dumps({"error": "无输入数据"}, ensure_ascii=False))
             sys.exit(1)
